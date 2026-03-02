@@ -1,0 +1,57 @@
+# Using the "bigquery-public-data_ml_datasets.iris" table from Google BigQuery's
+# public datasets, answer the following questions (to keep a copy of your
+# queries, after you find the solution, paste the query below each question):
+
+# 1. Print to the screen the entire iris table (all rows and all columns)
+
+SELECT *
+FROM `bigquery-public-data.ml_datasets.iris`;
+
+# 2. How many rows are there in total?
+
+SELECT count(sepal_length) as n_row
+FROM `bigquery-public-data.ml_datasets.iris`;
+
+-> 150
+
+# 3. List all the unique species that are available in the table.
+
+SELECT distinct species
+FROM `bigquery-public-data.ml_datasets.iris`;
+
+# 4. How many species are there?
+
+SELECT count(distinct species) as n_species
+FROM `bigquery-public-data.ml_datasets.iris`;
+
+-> 3
+
+# 5. What is the average sepal_length?
+
+SELECT avg(sepal_length) as avg_sepal_length
+FROM `bigquery-public-data.ml_datasets.iris`;
+
+# 6. In the same query, show the average sepal_length, sepal_width, petal_length and petal_width.
+
+SELECT  avg(sepal_length) as avg_sepal_length,
+        avg(sepal_width) as avg_sepal_width,
+        avg(petal_length) as avg_petal_length,
+        avg(petal_width) as avg_petal_width
+FROM `bigquery-public-data.ml_datasets.iris`;
+
+# 7. As you did in the third point, list all the unique species available in the table, but this #    time keep only the first three characters (of each species' name).
+
+SELECT distinct LEFT(species, 3) as trunc_species
+FROM `bigquery-public-data.ml_datasets.iris`;
+
+# 8. The range is the difference between the smallest and the largest value in your data.
+#    Calculate the range for each of the four numeric variables that are present in the iris
+#    dataset. Which variable has the highest range?
+
+SELECT  ROUND(MAX(sepal_length) - MIN(sepal_length), 2) as sepal_length_range,
+        ROUND(MAX(sepal_width) - MIN(sepal_width), 2) as sepal_width_range,
+        ROUND(MAX(petal_length) - MIN(petal_length), 2) as petal_length_range,
+        ROUND(MAX(petal_width) - MIN(petal_width), 2) as petal_width_range,
+FROM `bigquery-public-data.ml_datasets.iris`;
+
+-> petal_length = 5.9
