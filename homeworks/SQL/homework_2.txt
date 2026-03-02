@@ -65,8 +65,7 @@ FROM `bigquery-public-data.ml_datasets.census_adult_income`;
 
 -> is not: male doc = 1.5007% while female doc = 0.7984%
 
-
-
+=========================================================================================================================
 
 # ADVANCE EXCERCISES:
 # Keep using the "bigquery-public-data.ml_datasets.census_adult_income" dataset and try to answer 
@@ -135,4 +134,64 @@ SELECT occupation, education_num, capital_gain, native_country
 FROM `bigquery-public-data.ml_datasets.census_adult_income`
 WHERE TRIM(native_country) != "United-States" AND education_num < 10 AND capital_gain > 0 AND TRIM(occupation) IN("Local-gov", "Federal-gov", "State-gov")
 
--> no data
+-> no data (there's no gov type occupation)
+
+# 7. Write a CASE-WHEN statement that groups the 7 elements in the variable marital_status into 3 main 
+#    categories and call it marital_status_short:
+#    Then, in the same statement, select all variables from the dataset, including the newly created 
+#    marital_status_short and, using a WHERE clause, keep only people that are married (make sure you use the new 
+#    variable you just created in the WHERE clause), have a positive capital gain and are of Amer-Indian-Eskimo 
+#    race from the United States. 
+#    How many people are there?
+
+SELECT DISTINCT marital_status,
+CASE
+  WHEN TRIM(LOWER(marital_status)) LIKE "%spouse%" THEN "IsMarried"
+  WHEN TRIM(LOWER(marital_status)) LIKE "%never%" THEN "NeverMarried"
+  ELSE "HasBennMarried"
+END AS marital_status_short
+FROM `bigquery-public-data.ml_datasets.census_adult_income`;
+
+-----------------------------------------------------------------------------
+
+WITH census AS (
+  SELECT *,
+    CASE
+      WHEN TRIM(LOWER(marital_status)) LIKE "%spouse%" THEN "IsMarried"
+      WHEN TRIM(LOWER(marital_status)) LIKE "%never%" THEN "NeverMarried"
+      ELSE "HasBeenMarried"
+    END AS marital_status_short
+  FROM `bigquery-public-data.ml_datasets.census_adult_income`
+)
+
+SELECT *
+FROM census
+WHERE
+  marital_status_short = "IsMarried"
+  AND capital_gain > 0
+  AND TRIM(native_country) = "United-States"
+  AND TRIM(race) = "Amer-Indian-Eskimo";
+
+# 8. Given the resulting dataset from the previous question, what is the average capital gain of males and 
+#    females? Write a query that shows those two results in the output table and ROUND them to the closest integer.
+
+WITH census AS (
+  SELECT *,
+    CASE
+      WHEN TRIM(LOWER(marital_status)) LIKE "%spouse%" THEN "IsMarried"
+      WHEN TRIM(LOWER(marital_status)) LIKE "%never%" THEN "NeverMarried"
+      ELSE "HasBeenMarried"
+    END AS marital_status_short
+  FROM `bigquery-public-data.ml_datasets.census_adult_income`
+)
+
+SELECT
+  sex,
+  ROUND(AVG(capital_gain),0) AS avg_value
+FROM census
+WHERE
+  marital_status_short = "IsMarried"
+  AND capital_gain > 0
+  AND TRIM(native_country) = "United-States"
+  AND TRIM(race) = "Amer-Indian-Eskimo"
+GROUP BY sex;
