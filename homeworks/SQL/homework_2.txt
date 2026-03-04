@@ -22,7 +22,7 @@ FROM `bigquery-public-data.ml_datasets.census_adult_income`;
 
 SELECT count(sex) as number_male_doctorate
 FROM `bigquery-public-data.ml_datasets.census_adult_income`
-WHERE TRIM(sex) = "Male" AND TRIM(education) = "Doctorate";
+WHERE TRIM(sex) = "Male" AND TRIM(education) = "Doctorate" AND TRIM(native_country) = "United-States";
 
 -> 327
 
@@ -63,7 +63,7 @@ ROUND(COUNTIF(TRIM(sex) = 'Male' AND TRIM(education) = 'Doctorate') / COUNTIF(TR
 ROUND(COUNTIF(TRIM(sex) = 'Female' AND TRIM(education) = 'Doctorate') / COUNTIF(TRIM(sex) = 'Female') * 100, 4) AS female_doc_percentage
 FROM `bigquery-public-data.ml_datasets.census_adult_income`;
 
--> is not: male doc = 1.5007% while female doc = 0.7984%
+-> male doc = 1.5007% while female doc = 0.7984%
 
 =========================================================================================================================
 
@@ -130,11 +130,11 @@ WITH italy_population AS (
 #       c. Have a positive capital gain
 #       d. And are not native of the United-States
 
-SELECT occupation, education_num, capital_gain, native_country
+SELECT workclass, education_num, capital_gain, native_country
 FROM `bigquery-public-data.ml_datasets.census_adult_income`
-WHERE TRIM(native_country) != "United-States" AND education_num < 10 AND capital_gain > 0 AND TRIM(occupation) IN("Local-gov", "Federal-gov", "State-gov")
+WHERE TRIM(native_country) != "United-States" AND education_num < 10 AND capital_gain > 0 AND TRIM(workclass) IN("Local-gov", "Federal-gov", "State-gov")
 
--> no data (there's no gov type occupation)
+-> only 2 from el salvador and Puerto Rico
 
 # 7. Write a CASE-WHEN statement that groups the 7 elements in the variable marital_status into 3 main 
 #    categories and call it marital_status_short:
