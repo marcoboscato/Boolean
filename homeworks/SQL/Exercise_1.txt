@@ -1,0 +1,55 @@
+###################
+ Lesson 3
+ Breakout Rooms Exercise Solutions
+###################
+*/
+-- Go to this Kaggle page and download the relative csv file (IMDB ratings dataset): https://www.kaggle.com/datasets/kartikeychauhan/imdbmoviedataset
+-- After you have loaded it into your BigQuery project/dataset (see the slides for step-by-step instructions), try to answer the following questions. 
+-- Questions
+-- 1. Take a look at the imdb table you just loaded in your BigQuery dataset. 
+-- 2. Who are the top 3 directors in terms of number of movies present in the dataset?
+
+SELECT
+  TRIM(directors) AS directors,
+  COUNT(title) AS num_movie
+FROM `sql-sandbox-boolean-488922.DataAnalytics.imbd_movie`
+UNNEST(SPLIT(directors, ',')) AS director
+GROUP BY directors
+ORDER BY num_movie DESC
+LIMIT 3;
+
+-- 3. How many directors are there having at least 20 movies present in the dataset?
+
+SELECT
+  TRIM(directors) AS directors,
+  COUNT(title) AS num_movie
+FROM `sql-sandbox-boolean-488922.DataAnalytics.imbd_movie`
+UNNEST(SPLIT(directors, ',')) AS directors
+GROUP BY directors
+HAVING num_movie >= 20
+ORDER BY num_movie DESC;
+
+-- 4. Who are the top 3 directors in terms of average IMDB rating? Do you know them?
+
+SELECT
+  TRIM(directors) AS directors,
+  COUNT(title) AS num_movie,
+  ROUND(AVG(IMDb_rating), 2) AS avg_rating
+FROM `sql-sandbox-boolean-488922.DataAnalytics.imbd_movie`
+UNNEST(SPLIT(directors, ',')) AS directors
+GROUP BY directors
+ORDER BY avg_rating DESC
+LIMIT 3;
+
+-- 5. Looks like these directors only made one movie, let’s look only at directors having at least 5 movies in the dataset. Who are the top 3 now? Do you know them?
+
+SELECT
+  TRIM(directors) AS directors,
+  COUNT(title) AS num_movie,
+  ROUND(AVG(IMDb_rating), 2) AS avg_rating
+FROM `sql-sandbox-boolean-488922.DataAnalytics.imbd_movie`
+UNNEST(SPLIT(directors, ',')) AS directors
+GROUP BY directors
+HAVING num_movie>= 5
+ORDER BY avg_rating DESC
+LIMIT 3;
