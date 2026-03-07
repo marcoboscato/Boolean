@@ -12,8 +12,8 @@
 SELECT
   TRIM(directors) AS directors,
   COUNT(title) AS num_movie
-FROM `sql-sandbox-boolean-488922.DataAnalytics.imbd_movie`
-UNNEST(SPLIT(directors, ',')) AS director
+FROM `sql-sandbox-boolean-488922.DataAnalytics.imbd_movie`,
+UNNEST(SPLIT(directors, ',')) AS directors
 GROUP BY directors
 ORDER BY num_movie DESC
 LIMIT 3;
@@ -23,7 +23,7 @@ LIMIT 3;
 SELECT
   TRIM(directors) AS directors,
   COUNT(title) AS num_movie
-FROM `sql-sandbox-boolean-488922.DataAnalytics.imbd_movie`
+FROM `sql-sandbox-boolean-488922.DataAnalytics.imbd_movie`,
 UNNEST(SPLIT(directors, ',')) AS directors
 GROUP BY directors
 HAVING num_movie >= 20
@@ -35,7 +35,7 @@ SELECT
   TRIM(directors) AS directors,
   COUNT(title) AS num_movie,
   ROUND(AVG(IMDb_rating), 2) AS avg_rating
-FROM `sql-sandbox-boolean-488922.DataAnalytics.imbd_movie`
+FROM `sql-sandbox-boolean-488922.DataAnalytics.imbd_movie`,
 UNNEST(SPLIT(directors, ',')) AS directors
 GROUP BY directors
 ORDER BY avg_rating DESC
@@ -47,7 +47,7 @@ SELECT
   TRIM(directors) AS directors,
   COUNT(title) AS num_movie,
   ROUND(AVG(IMDb_rating), 2) AS avg_rating
-FROM `sql-sandbox-boolean-488922.DataAnalytics.imbd_movie`
+FROM `sql-sandbox-boolean-488922.DataAnalytics.imbd_movie`,
 UNNEST(SPLIT(directors, ',')) AS directors
 GROUP BY directors
 HAVING num_movie>= 5
