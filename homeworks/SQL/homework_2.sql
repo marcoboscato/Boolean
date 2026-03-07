@@ -1,0 +1,195 @@
+-- STANDARD EXCERCISES:
+-- Go to the Google BigQuery Sandbox environment and search for the
+-- "bigquery-public-data.ml_datasets.census_adult_income" dataset among the public datasets.
+-- Open a query editor and try to answer the following questions using only the clauses and
+-- statements seen in class so far.
+
+-- 1. Check the range of the age variable, it goes from 17 to 90 years old; using a CASE-WHEN
+--    statement, create a new variable that groups the data in 5 age brackets:
+--    "<20", "20-39","40-59", "60-79", "»=80"
+
+SELECT age,
+CASE
+  WHEN age<20 THEN "<20"
+  WHEN age>=20 AND age<40 THEN "20-39"
+  WHEN age>=40 AND age<60 THEN "40-59"
+  WHEN age>=60 AND age<80 THEN "60-79"
+  ELSE ">=80"
+END AS age_range
+FROM `bigquery-public-data.ml_datasets.census_adult_income`;
+
+-- 3. How many males are there with a Doctorate in the United States?
+
+SELECT count(sex) as number_male_doctorate
+FROM `bigquery-public-data.ml_datasets.census_adult_income`
+WHERE TRIM(sex) = "Male" AND TRIM(education) = "Doctorate" AND TRIM(native_country) = "United-States";
+
+--> 327
+
+-- 4. Is it more or less than the number of females with a Doctorate in the United States?
+
+SELECT count(sex) as number_female_doctorate
+FROM `bigquery-public-data.ml_datasets.census_adult_income`
+WHERE TRIM(sex) = "Female" AND TRIM(education) = "Doctorate";
+
+--> 86
+
+
+-- 5. In the previous question, you should have observed that, in absolute terms, there are almost 
+--    four times as many males with a doctorate compared to females. But is it really so? Well, in 
+--    absolute terms it is, however, to get a more accurate picture of our population, we should 
+--    compare those values to the proportion of total males and females in the population.
+--    Find how many males and females there are in the total population.
+
+SELECT
+COUNTIF(TRIM(sex) = 'Male') AS male_population,
+COUNTIF(TRIM(sex) = 'Female') AS female_population
+FROM `bigquery-public-data.ml_datasets.census_adult_income`;
+
+--> male population: 21790
+--> female population: 10771
+
+
+-- 6. Now, using a calculator or a spreadsheet (or even the BigQuery editor), compare the number 
+--    of Males with a Doctorate to the total number of Males in the dataset (TotMales / 
+--    MalesWithDoctorate * 100) and then do the same with the Females. You should find that, 
+--    although it is true that there are more males with a doctorate than females, compared to the 
+--    overall proportion of male/female split in the population, it is not really four times as 
+--    many, but about twice. The catch here is that females are underrepresented in this dataset 
+--    (10.8K females vs 21.8K males).
+
+SELECT
+ROUND(COUNTIF(TRIM(sex) = 'Male' AND TRIM(education) = 'Doctorate') / COUNTIF(TRIM(sex) = 'Male') * 100, 4) AS male_doc_percentage,
+ROUND(COUNTIF(TRIM(sex) = 'Female' AND TRIM(education) = 'Doctorate') / COUNTIF(TRIM(sex) = 'Female') * 100, 4) AS female_doc_percentage
+FROM `bigquery-public-data.ml_datasets.census_adult_income`;
+
+--> male doc = 1.5007% while female doc = 0.7984%
+-- =============================================================================================
+
+-- ADVANCE EXCERCISES:
+-- Keep using the "bigquery-public-data.ml_datasets.census_adult_income" dataset and try to answer 
+-- the following questions using only the clauses and statements seen in class so far.
+
+-- 1. Write a single query that shows the total number of males and females present in the dataset 
+--    in two separate columns called TotMales and TotFemales, respectively (this is just like 
+--    question 5 from the previous section, but here the challenge is to write it in a single query).
+
+SELECT
+COUNTIF(TRIM(sex) = 'Male') AS TotMales,
+COUNTIF(TRIM(sex) = 'Female') AS TotFemales
+FROM `bigquery-public-data.ml_datasets.census_adult_income`;
+
+--> male population: 21790
+--> female population: 10771
+
+-- 2. Now, still using a single query, generate a table (2 columns, 1 row) that shows the percent of 
+--    males and females with a doctorate, compared to their respectivelbase population (males and females).
+--    Again, this is like question 6 from the previous section, but this time you'll perform all the 
+--    calculations directly in the SELECT part of the query.
+
+SELECT
+ROUND(COUNTIF(TRIM(sex) = 'Male' AND TRIM(education) = 'Doctorate') / COUNTIF(TRIM(sex) = 'Male') * 100, 4) AS male_doc_percentage,
+ROUND(COUNTIF(TRIM(sex) = 'Female' AND TRIM(education) = 'Doctorate') / COUNTIF(TRIM(sex) = 'Female') * 100, 4) AS female_doc_percentage
+FROM `bigquery-public-data.ml_datasets.census_adult_income`;
+
+-- 3. Finally, in the same query, create a third column called FemMalDocRatio where you divide MalesDocPct 
+--    by FemalesDocPct and ROUND the three results to the 2nd decimal place
+--    (yes, queries can get get long and messy).
+
+SELECT
+ROUND(COUNTIF(TRIM(sex) = 'Male' AND TRIM(education) = 'Doctorate') / COUNTIF(TRIM(sex) = 'Male') * 100, 4) AS male_doc_percentage,
+ROUND(COUNTIF(TRIM(sex) = 'Female' AND TRIM(education) = 'Doctorate') / COUNTIF(TRIM(sex) = 'Female') * 100, 4) AS female_doc_percentage,
+ROUND(COUNTIF(TRIM(sex) = 'Female' AND TRIM(education) = 'Doctorate') / COUNTIF(TRIM(sex) = 'Male' AND TRIM(education) = 'Doctorate'), 2) AS FemMalDocRatio
+FROM `bigquery-public-data.ml_datasets.census_adult_income`;
+
+-- 4. Now let's say you're interested in the same variables from the previous questions, but just for Italy 
+--    (variable native_country). What is the most efficient way (both computationally as well as requiring 
+--    the least amount of additional code to be written) to accomplish this?
+
+--> we can add before the query:
+
+WITH italy_population AS (
+  SELECT *
+  FROM `bigquery-public-data.ml_datasets.census_adult_income`
+  WHERE TRIM(native_country) = 'Italy'
+)
+
+--> this create a subset of only people from italy and use it as database
+
+-- 5. The result from the previous question is drastically different from what we observed in the general 
+--    population (across all countries). Here it seems like the percent of females with a doctorate are 
+--    much higher than the average of the general population. Is this result significant? Why?
+
+--> Nope, I don't have any person with a doctorate education from Italy
+
+-- 6. How many people in the dataset respond to all of the following conditions?
+--    Which countries are they native of?
+--       a. Work in either Local-gov, Federal-gov or State-gov
+--       b. Have less than 10 years of education
+--       c. Have a positive capital gain
+--       d. And are not native of the United-States
+
+SELECT workclass, education_num, capital_gain, native_country
+FROM `bigquery-public-data.ml_datasets.census_adult_income`
+WHERE TRIM(native_country) != "United-States" AND education_num < 10 AND capital_gain > 0 AND TRIM(workclass) IN("Local-gov", "Federal-gov", "State-gov")
+
+--> only 2 from el salvador and Puerto Rico
+
+-- 7. Write a CASE-WHEN statement that groups the 7 elements in the variable marital_status into 3 main 
+--    categories and call it marital_status_short:
+--    Then, in the same statement, select all variables from the dataset, including the newly created 
+--    marital_status_short and, using a WHERE clause, keep only people that are married (make sure you use the new 
+--    variable you just created in the WHERE clause), have a positive capital gain and are of Amer-Indian-Eskimo 
+--    race from the United States. 
+--    How many people are there?
+
+SELECT DISTINCT marital_status,
+CASE
+  WHEN TRIM(LOWER(marital_status)) LIKE "%spouse%" THEN "IsMarried"
+  WHEN TRIM(LOWER(marital_status)) LIKE "%never%" THEN "NeverMarried"
+  ELSE "HasBennMarried"
+END AS marital_status_short
+FROM `bigquery-public-data.ml_datasets.census_adult_income`;
+-------------------------------------------------------------------------------
+
+WITH census AS (
+  SELECT *,
+    CASE
+      WHEN TRIM(LOWER(marital_status)) LIKE "%spouse%" THEN "IsMarried"
+      WHEN TRIM(LOWER(marital_status)) LIKE "%never%" THEN "NeverMarried"
+      ELSE "HasBeenMarried"
+    END AS marital_status_short
+  FROM `bigquery-public-data.ml_datasets.census_adult_income`
+)
+
+SELECT *
+FROM census
+WHERE
+  marital_status_short = "IsMarried"
+  AND capital_gain > 0
+  AND TRIM(native_country) = "United-States"
+  AND TRIM(race) = "Amer-Indian-Eskimo";
+
+-- 8. Given the resulting dataset from the previous question, what is the average capital gain of males and 
+--    females? Write a query that shows those two results in the output table and ROUND them to the closest integer.
+
+WITH census AS (
+  SELECT *,
+    CASE
+      WHEN TRIM(LOWER(marital_status)) LIKE "%spouse%" THEN "IsMarried"
+      WHEN TRIM(LOWER(marital_status)) LIKE "%never%" THEN "NeverMarried"
+      ELSE "HasBeenMarried"
+    END AS marital_status_short
+  FROM `bigquery-public-data.ml_datasets.census_adult_income`
+)
+
+SELECT
+  sex,
+  ROUND(AVG(capital_gain),0) AS avg_value
+FROM census
+WHERE
+  marital_status_short = "IsMarried"
+  AND capital_gain > 0
+  AND TRIM(native_country) = "United-States"
+  AND TRIM(race) = "Amer-Indian-Eskimo"
+GROUP BY sex;

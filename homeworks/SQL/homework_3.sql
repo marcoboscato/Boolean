@@ -1,10 +1,10 @@
-# EXCERCISES
-# Take the “Homework Data life-expectancy” csv file and load it into BigQuery as a table named 
-# life-expectancy inside the same project and dataset you created in class; familiarise yourself with 
-# the data, then try to answer the following questions:
+-- EXCERCISES
+-- Take the “Homework Data life-expectancy” csv file and load it into BigQuery as a table named 
+-- life-expectancy inside the same project and dataset you created in class; familiarise yourself with 
+-- the data, then try to answer the following questions:
 
-# 1. What is the average life expectancy at birth in Europe (hint: the numeric variable related to the 
-#    MetricObserved dimension is called Numeric)?
+-- 1. What is the average life expectancy at birth in Europe (hint: the numeric variable related to the 
+--    MetricObserved dimension is called Numeric)?
 
 SELECT MetricObserved,
        ROUND(AVG(Numeric),2) AS avg_life_expectation
@@ -12,10 +12,10 @@ FROM `sql-sandbox-boolean-488922.homework.life-expectancy`
 WHERE TRIM(RegionDisplay) = "Europe"
 GROUP BY MetricObserved
 
--> 72.22 years
+--> 72.22 years
 
-# 2. Is Europe the region with the highest life expectancy at birth? Which region has the lowest life
-#    expectancy at birth?
+-- 2. Is Europe the region with the highest life expectancy at birth? Which region has the lowest life
+--    expectancy at birth?
 
 SELECT RegionDisplay,
        ROUND(AVG(Numeric),2) AS avg_life_expectation_at_birth
@@ -24,10 +24,10 @@ WHERE TRIM(MetricObserved) LIKE "%birth%" AND TRIM(MetricObserved) NOT LIKE "%HA
 GROUP BY RegionDisplay
 ORDER BY avg_life_expectation_at_birth DESC;
 
--> yes and the lowest is Africa
+--> yes and the lowest is Africa
 
-# 3. Does Europe also have the highest life expectancy at age 60? Which country has the highest life 
-#    expectancy after 60?
+-- 3. Does Europe also have the highest life expectancy at age 60? Which country has the highest life 
+--    expectancy after 60?
 
 SELECT MetricObserved,
        RegionDisplay,
@@ -37,10 +37,10 @@ WHERE MetricObserved LIKE "%60%"
 GROUP BY MetricObserved, RegionDisplay
 ORDER BY avg_life_expectation DESC;
 
--> Nope, is Americas
+--> Nope, is Americas
 
-# 4. Using a GROUP BY and a CASE-WHEN, create a pivot table that shows the average life expectancy for 
-#    all three types of MetricObserved (in three separate columns) by each region (each in a separate row)
+-- 4. Using a GROUP BY and a CASE-WHEN, create a pivot table that shows the average life expectancy for 
+--    all three types of MetricObserved (in three separate columns) by each region (each in a separate row)
 
 SELECT
     RegionDisplay,
@@ -50,12 +50,12 @@ SELECT
 FROM `sql-sandbox-boolean-488922.homework.life-expectancy`
 GROUP BY RegionDisplay
 
-# 5. Which countries have the highest average life expectancy at birth?
+-- 5. Which countries have the highest average life expectancy at birth?
 
--> Europe
+--> Europe
 
-# 6. Using three separate queries, check out which are the top 10 countries that consume the highest 
-#    quantities of beer, wine and spirits respectively.
+-- 6. Using three separate queries, check out which are the top 10 countries that consume the highest 
+--    quantities of beer, wine and spirits respectively.
 
 SELECT
     CountryDisplay,
@@ -81,9 +81,9 @@ GROUP BY CountryDisplay
 ORDER BY spirit_consumed DESC
 LIMIT 10;
 
-# 7. Now create a new variable that sums the average servings of beer + wine + spirit and call it 
-#    “avg_alcohol_servings”; what are the top 10 countries that consume the highest quantities of 
-#    alcohol overall?
+-- 7. Now create a new variable that sums the average servings of beer + wine + spirit and call it 
+--    “avg_alcohol_servings”; what are the top 10 countries that consume the highest quantities of 
+--    alcohol overall?
 
 SELECT
     CountryDisplay,
@@ -96,13 +96,13 @@ GROUP BY CountryDisplay
 ORDER BY avg_alcohol_servings DESC
 LIMIT 10;
 
-# 8. With reference to the last query (last question), look at the country that consumed the highest 
-#    quantity of alcohol overall, was it the first ranking country in terms of beer, wine or spirits? 
-#    If not, was it in the top 10 of any of those 3 rankings (beer, wine or spirits)?
+-- 8. With reference to the last query (last question), look at the country that consumed the highest 
+--    quantity of alcohol overall, was it the first ranking country in terms of beer, wine or spirits? 
+--    If not, was it in the top 10 of any of those 3 rankings (beer, wine or spirits)?
 
--> Nope but it was first for the spirits consumption
+--> Nope but it was first for the spirits consumption
 
-# 9. Which Country in Europe has the lowest life expectancy at birth?
+-- 9. Which Country in Europe has the lowest life expectancy at birth?
 
 SELECT CountryDisplay,
        ROUND(AVG(Numeric),2) AS avg_life_expectation_at_birth
@@ -111,12 +111,12 @@ WHERE TRIM(RegionDisplay) = "Europe" AND MetricObserved NOT LIKE "%60%" AND Metr
 GROUP BY CountryDisplay
 ORDER BY avg_life_expectation_at_birth;
 
--> Turkmenistan
+--> Turkmenistan
 
-# 10. Generally, women live longer than men, create a new variable that shows the difference between 
-#     females and males life expectancy at birth and call it avg_LE_delta_gender; which country has 
-#     the highest gap (in terms of years) between females and males? Are there any countries where men 
-#     live more than women?
+-- 10. Generally, women live longer than men, create a new variable that shows the difference between 
+--     females and males life expectancy at birth and call it avg_LE_delta_gender; which country has 
+--     the highest gap (in terms of years) between females and males? Are there any countries where men 
+--     live more than women?
 
 SELECT CountryDisplay,
        ROUND(AVG(CASE WHEN TRIM(SexDisplay) = "Female" THEN Numeric END),2) AS avg_life_expectation_at_birth_F,
@@ -127,4 +127,4 @@ WHERE MetricObserved NOT LIKE "%60%" AND MetricObserved NOT LIKE "%HALE%"
 GROUP BY CountryDisplay
 ORDER BY avg_LE_delta_gender;
 
--> Niger and yes, there is Mali where males live longer than females
+--> Niger and yes, there is Mali where males live longer than females

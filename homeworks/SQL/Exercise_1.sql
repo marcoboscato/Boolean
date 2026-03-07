@@ -1,8 +1,3 @@
-###################
- Lesson 3
- Breakout Rooms Exercise Solutions
-###################
-*/
 -- Go to this Kaggle page and download the relative csv file (IMDB ratings dataset): https://www.kaggle.com/datasets/kartikeychauhan/imdbmoviedataset
 -- After you have loaded it into your BigQuery project/dataset (see the slides for step-by-step instructions), try to answer the following questions. 
 -- Questions
