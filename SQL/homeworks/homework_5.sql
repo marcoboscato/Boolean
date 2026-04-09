@@ -160,3 +160,89 @@ VALUES ('George', 5);
 SELECT * FROM students;
 
 -- 7): all the modification are updates when I join the two table since is a relational database
+
+
+-- ADVANCED --
+
+-- 1)
+
+SELECT oi.*, p.*
+FROM `bigquery-public-data.thelook_ecommerce.order_items` AS oi
+LEFT JOIN `bigquery-public-data.thelook_ecommerce.products` As p ON oi.product_id = p.id
+LIMIT 50;
+
+-- 2)
+
+WITH product_orders AS ( 
+  SELECT oi.*, p.*
+  FROM `bigquery-public-data.thelook_ecommerce.order_items` AS oi
+  LEFT JOIN `bigquery-public-data.thelook_ecommerce.products` As p ON oi.product_id = p.id
+)
+
+SELECT
+  category,
+  COUNT (DISTINCT order_id) AS cnt_orders_x_product
+FROM product_orders
+GROUP BY category
+ORDER BY cnt_orders_x_product DESC;
+
+-- 3)
+
+WITH product_orders AS ( 
+  SELECT oi.*, p.*
+  FROM `bigquery-public-data.thelook_ecommerce.order_items` AS oi
+  LEFT JOIN `bigquery-public-data.thelook_ecommerce.products` As p ON oi.product_id = p.id
+)
+
+SELECT
+  category,
+  COUNT (DISTINCT order_id) AS cnt_orders_x_product,
+  ROUND (AVG (retail_price - cost), 2) as avg_margin_per_order
+  --(SUM(retail_price) - SUM(cost))/count(distinct order_id) as avg_margin_per_order
+FROM product_orders
+GROUP BY category
+ORDER BY avg_margin_per_order DESC;
+
+-- 4)
+
+WITH product_orders AS ( 
+  SELECT oi.*, p.*
+  FROM `bigquery-public-data.thelook_ecommerce.order_items` AS oi
+  LEFT JOIN `bigquery-public-data.thelook_ecommerce.products` As p ON oi.product_id = p.id
+  WHERE TRIM(oi.status) = 'Complete'
+)
+
+SELECT
+  name,
+  category,
+  COUNT (order_id) AS cnt_orders_x_product,
+FROM product_orders
+GROUP BY name, category
+ORDER BY cnt_orders_x_product DESC;
+
+-- 5)
+
+WITH product_orders AS ( 
+  SELECT oi.*, p.*
+  FROM `bigquery-public-data.thelook_ecommerce.order_items` AS oi
+  LEFT JOIN `bigquery-public-data.thelook_ecommerce.products` As p ON oi.product_id = p.id
+  WHERE TRIM(oi.status) = 'Complete' AND oi.returned_at IS NULL
+)
+
+SELECT
+  name,
+  delivered_at,
+  shipped_at,
+  TIMESTAMP_DIFF(delivered_at, shipped_at, MINUTE) AS delta_delivery_minutes
+FROM product_orders
+ORDER BY delta_delivery_minutes DESC;
+
+-- 6)
+
+SELECT
+  name,
+  delivered_at,
+  shipped_at,
+  TIMESTAMP_DIFF(delivered_at, shipped_at, MINUTE) AS delta_delivery_minutes
+FROM product_orders
+ORDER BY delta_delivery_minutes ASC;

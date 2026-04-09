@@ -1,0 +1,8 @@
+numpy
+matplotlib
+seaborn
+pandas
+requests
+ipykernel
+
+#to register the jupyter kernel: python -m ipykernel install --user --name=myenv --display-name "Python (myenv)"
