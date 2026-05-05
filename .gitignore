@@ -210,3 +210,6 @@ __marimo__/
 #My Stuff
 .DS_Store
 *.pdf
+*.png
+*.jpeg
+*.svg
